@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather Web App</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    // Initialize the map
+    var map = L.map('map').setView([0, 0], 2);
+
+    // Add a tile layer to display the map
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+      maxZoom: 108,
+    }).addTo(map);
+
+    // Add a marker when the user clicks on the map
+    var marker;
+    map.on('click', function(e) {
+      if (marker) {
+        map.removeLayer(marker);
+      }
+      marker = L.marker(e.latlng).addTo(map);
+      
+      // Retrieve weather data based on the selected location
+      var lat = e.latlng.lat;
+      var lng = e.latlng.lng;
+      getWeatherData(lat, lng);
+    });
+
+    // Function to retrieve weather data
+    function getWeatherData(lat, lng) {
+      // Make an API call to your weather data provider with the lat and lng coordinates
+      // Replace the API_ENDPOINT and API_KEY placeholders with your actual API endpoint and key
+      var apiEndpoint = 'API_ENDPOINT';
+      var apiKey = 'API_KEY';
+      var url = `${apiEndpoint}?lat=${lat}&lon=${lng}&appid=${apiKey}`;
+
+      // Perform an AJAX request to retrieve the weather data
+      fetch(url)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          // Parse the weather data and display it on your web app
+          var temperature = data.main.temp;
+          var weatherDescription = data.weather[0].description;
+          var windSpeed = data.wind.speed;
+          
+          // Example: Display the weather information in the console
+          console.log('Temperature: ' + temperature);
+          console.log('Weather Description: ' + weatherDescription);
+          console.log('Wind Speed: ' + windSpeed);
+          
+          // Example: Display the weather information on the web page
+          var weatherInfoContainer = document.getElementById('weather-info');
+          weatherInfoContainer.innerHTML = `
+            <h3>Weather Information</h3>
+            <p>Temperature: ${temperature}°C</p>
+            <p>Weather Description: ${weatherDescription}</p>
+            <p>Wind Speed: ${windSpeed} m/s</p>
+          `;
+        })
+        .catch(function(error) {
+          console.log('Error:', error);
+        });
+    }
+  </script>
+</body>
+</html>
